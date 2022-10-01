@@ -8,7 +8,7 @@
     "start": "node app.js",
     "lint": "npx eslint ."
   },
-  "author": "",
+  "author": "Дмитрий Фадеев",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.24.0",

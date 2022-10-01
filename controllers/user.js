@@ -4,7 +4,7 @@ const { INCORRECT_DATA, NOT_FOUND, DEFAULT_ERROR } = require('./errors');
 function getUsers(req, res) {
   userModel.find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.name} ${err.message}` }));
+    .catch((err) => res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` }));
 }
 
 function getUser(req, res) {
@@ -15,7 +15,7 @@ function getUser(req, res) {
     })
     .catch((err) => {
       if (err.name === 'CastError')res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: неверный ID пользователя' });
-      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.name} ${err.message}` });
+      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 
@@ -25,27 +25,31 @@ function createUser(req, res) {
     .then((newUser) => res.send(newUser))
     .catch((err) => {
       if (err.name === 'ValidationError') res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: переданы неверные данные' });
-      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.name} ${err.message}` });
+      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 
 function updateProfile(req, res) {
   const { name = null, about = null } = req.body; // для валидации обнуляем
-  userModel.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+  // eslint-disable-next-line max-len
+  // все и так валидировалось в отправленном ранее варианте, см. app.js строка 11 а так же коментарий в предыдущей строке (!)
+  userModel.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((newUser) => res.send(newUser))
     .catch((err) => {
       if (err.name === 'ValidationError') res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: переданы неверные данные' });
-      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.name} ${err.message}` });
+      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 
 function updateAvatar(req, res) {
-  const { avatar = null } = req.body;
-  userModel.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  const { avatar = null } = req.body; // для валидации обнуляем
+  // eslint-disable-next-line max-len
+  // все и так валидировалось в отправленном ранее варианте, см. app.js строка 11 а так же коментарий в предыдущей строке (!)
+  userModel.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((newUser) => res.send(newUser))
     .catch((err) => {
       if (err.name === 'ValidationError') res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: переданы неверные данные' });
-      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.name} ${err.message}` });
+      else res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 
