@@ -1,9 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { error404 } = require('./controllers/errors');
-
-const userId = '63336b48e0fc8f7c2233da1a';
+const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+const { login, createUser } = require('./controllers/user');
+const auth = require('./middlewares/auth');
+const ErrorHandler = require('./errors/ErrorHandler');
+const { validateNewUser, validateCredentials } = require('./middlewares/celebrations');
+const { NOT_FOUND } = require('./errors/errors');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -12,20 +16,22 @@ mongoose.set('runValidators', true); // чтобы валидация на ап�
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(bodyParser.json()); // для собирания JSON-формата
+app.use(cookieParser()); // парсер кук
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: userId,
-  };
-
-  next();
-});
-
+app.post('/signin', validateCredentials, login);
+app.post('/signup', validateNewUser, createUser);
+// авторизация
+app.use(auth);
+// роуты
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
-
-app.use('/', error404);
+// ошибки
+app.use('/', (req, res) => {
+  res.status(NOT_FOUND).send({ message: 'Ресурс не найден. Проверьте URL и метод запроса' });
+});
+app.use(errors()); // обработчик ошибок celebrate
+app.use(ErrorHandler);
 
 app.listen(
   PORT,
