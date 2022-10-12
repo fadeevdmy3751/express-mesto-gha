@@ -78,13 +78,8 @@ function createUser(req, res, next) {
       name, about, avatar, email, password: hash,
     }))
     .then((newUser) => {
-      // выглядит ужасно но не нашел лучшего решения как не выводить хэш пароля
-      const toSend = (({
-        // eslint-disable-next-line no-shadow
-        name, about, avatar, email, _id,
-      }) => ({
-        name, about, avatar, email, _id,
-      }))(newUser);
+      const toSend = { ...newUser.toJSON() };
+      delete toSend.password; // todo check
       res.send(toSend);
     })
     .catch((err) => {

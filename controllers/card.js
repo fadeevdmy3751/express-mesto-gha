@@ -25,22 +25,15 @@ function createCard(req, res, next) {
 function deleteCard(req, res, next) {
   cardModel.findOne({ _id: req.params.cardId })
     .then((card) => {
-      if (card) {
-        if (String(card.owner) === String(req.user._id)) {
-          cardModel.findByIdAndDelete(req.params.cardId)
-            .then(() => res.send({ message: 'Пост удалён' }));
-        } else next(new ForbiddenError('чужая карточка'));
-      } else next(new NotFoundError('карточка'));
+      if (!card) next(new NotFoundError('карточка'));
+      if (String(card.owner) !== String(req.user._id)) next(new ForbiddenError('чужая карточка'));
+      cardModel.findByIdAndDelete(req.params.cardId)
+        .then(() => res.send({ message: 'Пост удалён' }));
     })
-    .catch(next);
-
-  // .then(() => res.send({ message: 'Пост удалён' }))
-  // .catch((err) => {
-  //   if (err.name === 'CastError') next(new IncorrectDataError('ID карточки'));
-  //   // res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: неверный ID карточки' });
-  //   else next(new DefaultError(`удаление карточки: ${err.message}`));
-  //   // res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
-  // });
+    .catch((err) => {
+      if (err.name === 'CastError') next(new IncorrectDataError('ID карточки'));
+      else next(err); // todo check
+    });
 }
 
 function putLike(req, res, next) {

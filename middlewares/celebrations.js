@@ -3,7 +3,8 @@ const { celebrate, Joi } = require('celebrate');
 const validateUserID = celebrate({
   // валидируем параметры
   params: Joi.object().keys({
-    userId: Joi.string().required().alphanum().length(24),
+    userId: Joi.string().required().alphanum().length(24)
+      .hex(),
   }),
 });
 
@@ -28,14 +29,14 @@ const validateNewUser = celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().uri({ domain: { minDomainSegments: 2 } }),
     email: Joi.string().required().email(),
-    password: Joi.string().min(8).required(),
+    password: Joi.string().required(),
   }),
 });
 
 const validateCredentials = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().min(8).required(),
+    password: Joi.string().required(),
   }),
 });
 
@@ -48,7 +49,8 @@ const validateCard = celebrate({
 
 const validateCardID = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().alphanum().length(24),
+    cardId: Joi.string().required().alphanum().length(24)
+      .hex(),
   }),
 });
 

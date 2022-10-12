@@ -7,12 +7,12 @@ const { login, createUser } = require('./controllers/user');
 const auth = require('./middlewares/auth');
 const ErrorHandler = require('./errors/ErrorHandler');
 const { validateNewUser, validateCredentials } = require('./middlewares/celebrations');
-const { NOT_FOUND } = require('./errors/errors');
+const { NotFoundError } = require('./errors/errors');
 
 const app = express();
 const { PORT = 3000 } = process.env;
 
-mongoose.set('runValidators', true); // чтобы валидация на апдейты работала
+// mongoose.set('runValidators', true); // чтобы валидация на апдейты работала //todo check
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(bodyParser.json()); // для собирания JSON-формата
@@ -27,9 +27,9 @@ app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 // ошибки
-app.use('/', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Ресурс не найден. Проверьте URL и метод запроса' });
-});
+app.use('/', (req, res, next) => {
+  next(new NotFoundError('Ресурс не найден. Проверьте URL и метод запроса'));
+}); // todo check
 app.use(errors()); // обработчик ошибок celebrate
 app.use(ErrorHandler);
 
