@@ -12,7 +12,6 @@ const { NotFoundError } = require('./errors/errors');
 const app = express();
 const { PORT = 3000 } = process.env;
 
-// mongoose.set('runValidators', true); // чтобы валидация на апдейты работала //todo check
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(bodyParser.json()); // для собирания JSON-формата

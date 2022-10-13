@@ -7,7 +7,6 @@ function getCards(req, res, next) {
   cardModel.find({}, null, { sort: { createdAt: -1 } })
     .then((cards) => res.send(cards)) // фильтрует овнеров-объекты (а не строки или id)
     .catch((err) => next(new DefaultError(`получение карточек: ${err.message}`)));
-  // res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` }));
 }
 
 function createCard(req, res, next) {
@@ -16,9 +15,7 @@ function createCard(req, res, next) {
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') next(new IncorrectDataError('название/ссылка карточки'));
-      // res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: переданы неверные данные' });
       else next(new DefaultError(`создание карточки: ${err.message}`));
-      // res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 
@@ -26,13 +23,15 @@ function deleteCard(req, res, next) {
   cardModel.findOne({ _id: req.params.cardId })
     .then((card) => {
       if (!card) next(new NotFoundError('карточка'));
-      if (String(card.owner) !== String(req.user._id)) next(new ForbiddenError('чужая карточка'));
-      cardModel.findByIdAndDelete(req.params.cardId)
-        .then(() => res.send({ message: 'Пост удалён' }));
+      else if (String(card.owner) !== String(req.user._id)) next(new ForbiddenError('чужая карточка'));
+      else {
+        cardModel.findByIdAndDelete(req.params.cardId)
+          .then(() => res.send({ message: 'Пост удалён' }));
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') next(new IncorrectDataError('ID карточки'));
-      else next(err); // todo check
+      else next(err);
     });
 }
 
@@ -45,13 +44,10 @@ function putLike(req, res, next) {
     .then((card) => {
       if (card) res.send(card);
       else next(new NotFoundError('карточка'));
-      // res.status(NOT_FOUND).send({ message: 'Произошла ошибка: карточка не существует' });
     })
     .catch((err) => {
       if (err.name === 'CastError') next(new IncorrectDataError('ID карточки'));
-      // res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: неверный ID карточки' });
       else next(new DefaultError(`добавление лайка: ${err.message}`));
-      // res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 
@@ -64,13 +60,10 @@ function deleteLike(req, res, next) {
     .then((card) => {
       if (card) res.send(card);
       else next(new NotFoundError('карточка'));
-      // res.status(NOT_FOUND).send({ message: 'Произошла ошибка: карточка не существует' });
     })
     .catch((err) => {
       if (err.name === 'CastError') next(new IncorrectDataError('ID карточки'));
-      // res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: неверный ID карточки' });
       else next(new DefaultError(`удаление лайка: ${err.message}`));
-      // res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 

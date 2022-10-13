@@ -84,10 +84,8 @@ function createUser(req, res, next) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') next(new IncorrectDataError('почта/пароль'));
-      // res.status(INCORRECT_DATA).send({ message: 'Произошла ошибка: переданы неверные данные' });
       else if (err.code === 11000) next(new ConflictError('пользователь с такой почтой уже существует'));
       else next(new DefaultError(`ошибка создания пользователя: ${err.message}`));
-      // res.status(DEFAULT_ERROR).send({ message: `Произошла ошибка: ${err.message}` });
     });
 }
 
@@ -110,18 +108,12 @@ function login(req, res, next) {
       })
         .send({
           message: 'успешная авторизация',
-          // jwt: token, // для GHA ибо из кук почемуто не берет
         });
     })
     .catch((err) => {
       // ошибка аутентификации
       next(new UnauthorizedError(err.message));
-      // throw new UnauthorizedError(err.message);
-      // res
-      //   .status(UNAUTHORIZED)
-      //   .send({ message: err.message });
     });
-  // .catch(next);
 }
 
 module.exports = {

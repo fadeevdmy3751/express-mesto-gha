@@ -5,9 +5,9 @@ const { NODE_ENV } = process.env;
 module.exports = (err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
-  if (NODE_ENV !== 'production') {
+  if (NODE_ENV !== 'production' && statusCode === 500) {
     // eslint-disable-next-line no-console
-    if (statusCode === 500) console.log(message);
+    console.log(message);
   }
   res.status(statusCode)
     .send({
